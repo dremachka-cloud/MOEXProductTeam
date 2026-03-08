@@ -7,1025 +7,435 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-:root {
-  --bg: #0a0a0f;
-  --card: #12121a;
-  --card-alt: #16161f;
-  --accent: #00d4aa;
-  --accent-dim: rgba(0,212,170,0.15);
-  --accent-glow: rgba(0,212,170,0.4);
-  --text: #e0e0e0;
-  --text-dim: #888;
-  --danger: #ff4444;
-  --warning: #ffaa00;
-  --success: #00d4aa;
-  --radius: 12px;
-  --font: 'Plus Jakarta Sans', sans-serif;
-  --mono: 'JetBrains Mono', monospace;
-}
+:root{--bg:#0a0a0f;--card:#12121a;--card2:#16161f;--accent:#00d4aa;--glow:rgba(0,212,170,0.4);--blue:#4a9eff;--blued:rgba(74,158,255,0.12);--purple:#a855f7;--purpled:rgba(168,85,247,0.12);--text:#e0e0e0;--dim:#888;--red:#ff4444;--yellow:#ffaa00;--green:#00d4aa;--r:12px;--f:'Plus Jakarta Sans',sans-serif;--m:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--f);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+.hdr{text-align:center;padding:40px 20px 20px;border-bottom:1px solid rgba(255,255,255,.05)}
+.hdr h1{font-family:var(--m);font-size:28px;font-weight:700;color:var(--accent)}
+.hdr p{color:var(--dim);font-size:14px;margin-top:4px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 20px}
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* FORM */
+#formBox{max-width:680px;margin:40px auto;transition:opacity .4s,transform .4s}
+#formBox.hide{opacity:0;transform:translateY(-10px)}
+.fg{margin-bottom:20px}
+.fg label{display:block;font-weight:600;font-size:14px;margin-bottom:8px}
+.fg textarea{width:100%;background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:var(--r);color:var(--text);font-family:var(--f);font-size:15px;padding:14px 16px;outline:none;transition:border .3s;resize:vertical;min-height:100px}
+.fg textarea:focus{border-color:var(--accent)}
+.err{color:var(--red);font-size:12px;margin-top:4px;display:none}
+.btn1{display:block;width:100%;padding:16px;font-family:var(--f);font-size:16px;font-weight:700;color:#0a0a0f;background:var(--accent);border:none;border-radius:var(--r);cursor:pointer;transition:all .3s}
+.btn1:hover{box-shadow:0 0 30px var(--glow);transform:translateY(-1px)}
 
-body {
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  line-height: 1.6;
-}
+/* LOADING */
+#loadBox{display:none;text-align:center;padding:80px 20px;animation:fi .5s}
+.spin{width:64px;height:64px;margin:0 auto 30px;border-radius:50%;border:3px solid rgba(255,255,255,.06);border-top-color:var(--accent);animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.lstatus{font-size:18px;font-weight:600;min-height:28px;transition:opacity .3s}
+.pbar{max-width:400px;margin:24px auto 0;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.pfill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#00f5c8);border-radius:2px;transition:width .5s}
 
-/* === HEADER === */
-.header {
-  text-align: center;
-  padding: 40px 20px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-.header h1 {
-  font-family: var(--mono);
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--accent);
-  letter-spacing: -0.5px;
-}
-.header p {
-  color: var(--text-dim);
-  font-size: 14px;
-  margin-top: 4px;
-}
+/* DASH */
+#dash{display:none;padding-bottom:60px;animation:fi .6s}
+.dtool{display:flex;flex-wrap:wrap;gap:10px;margin:30px 0 24px;justify-content:flex-end}
+.bt{padding:10px 18px;font-family:var(--f);font-size:13px;font-weight:600;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:var(--card);color:var(--text);cursor:pointer;transition:all .2s}
+.bt:hover{border-color:var(--accent);color:var(--accent)}
+.bt.ac{background:var(--accent);color:#0a0a0f;border-color:var(--accent)}
+.bt.ac:hover{box-shadow:0 0 20px var(--glow)}
 
-/* === CONTAINER === */
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
+.ds{margin-bottom:36px;opacity:0;transform:translateY(20px);transition:all .5s}
+.ds.vis{opacity:1;transform:translateY(0)}
+.ds h2{font-size:20px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px}
 
-/* === FORM === */
-#formSection {
-  max-width: 680px;
-  margin: 40px auto;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-#formSection.hiding {
-  opacity: 0;
-  transform: translateY(-10px);
-}
+.dcard{background:var(--card);border-radius:var(--r);padding:24px 28px;border-left:4px solid var(--accent);font-size:15px;line-height:1.7}
 
-.form-group {
-  margin-bottom: 20px;
-  position: relative;
-}
-.form-group label {
-  display: block;
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 8px;
-  color: var(--text);
-}
-.form-group textarea,
-.form-group input {
-  width: 100%;
-  background: var(--card);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius);
-  color: var(--text);
-  font-family: var(--font);
-  font-size: 15px;
-  padding: 14px 16px;
-  outline: none;
-  transition: border-color 0.3s;
-  resize: vertical;
-}
-.form-group textarea:focus,
-.form-group input:focus {
-  border-color: var(--accent);
-}
-.form-group textarea { min-height: 100px; }
-.form-group .hint {
-  font-size: 12px;
-  color: var(--text-dim);
-  margin-top: 4px;
-}
-.form-group .hint a { color: var(--accent); text-decoration: none; }
-.form-group .error-msg {
-  color: var(--danger);
-  font-size: 12px;
-  margin-top: 4px;
-  display: none;
-}
+/* COMPARE */
+.chead{display:flex;gap:16px;margin-bottom:20px}
+.ctab{flex:1;padding:16px 20px;border-radius:var(--r);text-align:center}
+.ct-b{background:var(--blued);border:2px solid var(--blue)}
+.ct-p{background:var(--purpled);border:2px solid var(--purple)}
+.ctlab{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.ct-b .ctlab{color:var(--blue)}.ct-p .ctlab{color:var(--purple)}
+.cttl{font-size:18px;font-weight:700;margin-top:4px}
 
-/* === BUTTON === */
-.btn-primary {
-  display: block;
-  width: 100%;
-  padding: 16px;
-  font-family: var(--font);
-  font-size: 16px;
-  font-weight: 700;
-  color: #0a0a0f;
-  background: var(--accent);
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-.btn-primary:hover {
-  box-shadow: 0 0 30px var(--accent-glow);
-  transform: translateY(-1px);
-}
-.btn-primary:active { transform: translateY(0); }
+.sban{background:linear-gradient(135deg,rgba(0,212,170,.08),rgba(168,85,247,.08));border:1px solid rgba(0,212,170,.25);border-radius:var(--r);padding:28px;text-align:center;margin-bottom:24px}
+.sban .sv{font-family:var(--m);font-size:44px;font-weight:700;color:var(--accent)}
+.sban .sl{font-size:15px;color:var(--dim);margin-top:6px}.sban .sl strong{color:var(--accent)}
+.sban .ss{font-size:13px;color:var(--dim);margin-top:8px}
 
-/* === LOADING === */
-#loadingSection {
-  display: none;
-  text-align: center;
-  padding: 80px 20px;
-  animation: fadeIn 0.5s ease;
-}
+.kgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.kc{background:var(--card);border-radius:var(--r);padding:20px;text-align:center;border:1px solid rgba(255,255,255,.04);transition:transform .2s}
+.kc:hover{transform:translateY(-2px)}
+.kt{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.kr{display:flex;justify-content:center;gap:20px;align-items:center}
+.kv{font-family:var(--m);font-size:28px;font-weight:700}
+.kv.b{color:var(--blue)}.kv.p{color:var(--purple)}
+.kvl{font-size:10px;color:var(--dim);margin-top:2px;text-align:center}
+.ka{color:var(--dim);font-size:18px}
+.kd{font-family:var(--m);font-size:13px;color:var(--accent);margin-top:10px;font-weight:600}
 
-.spinner {
-  width: 64px; height: 64px;
-  margin: 0 auto 30px;
-  border-radius: 50%;
-  border: 3px solid rgba(255,255,255,0.06);
-  border-top-color: var(--accent);
-  animation: spin 1s linear infinite;
-}
+/* TABLES */
+.tcomp{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tpan{border-radius:var(--r);overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.tph{padding:12px 16px;font-weight:700;font-size:14px;text-align:center}
+.pb .tph{background:var(--blued);color:var(--blue)}
+.pp .tph{background:var(--purpled);color:var(--purple)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:rgba(255,255,255,.05);color:var(--dim);font-weight:600;padding:10px 12px;text-align:left;white-space:nowrap;font-size:12px}
+tbody td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04)}
+tbody tr:nth-child(even){background:var(--card)}
+tbody tr:nth-child(odd){background:var(--card2)}
+.rtot{font-weight:700;background:rgba(255,255,255,.04)!important}
+.rtot td{border-bottom:none}
 
-@keyframes spin { to { transform: rotate(360deg); } }
+/* BARS */
+.bcomp{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.btit{font-size:13px;font-weight:700;margin-bottom:10px;text-align:center}
+.btit.b{color:var(--blue)}.btit.p{color:var(--purple)}
+.bi{display:flex;align-items:center;margin-bottom:6px;font-size:12px}
+.bl{width:140px;min-width:140px;text-align:right;padding-right:10px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btr{flex:1;height:20px;background:rgba(255,255,255,.03);border-radius:4px;overflow:hidden}
+.bf{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:6px;font-family:var(--m);font-size:10px;font-weight:700;min-width:fit-content;transition:width 1s}
+.bf.b{background:linear-gradient(90deg,var(--blue),#7ab8ff);color:#0a0a0f}
+.bf.p{background:linear-gradient(90deg,var(--purple),#c084fc);color:#0a0a0f}
 
-.loading-status {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text);
-  min-height: 28px;
-  animation: fadeIn 0.4s ease;
-}
+/* METRICS */
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.mc{background:var(--card);border-radius:var(--r);padding:24px;border:1px solid rgba(255,255,255,.04)}
+.mn{font-size:16px;font-weight:700;margin-bottom:4px}
+.md{font-size:12px;color:var(--dim);margin-bottom:16px;line-height:1.5}
+.gw{width:140px;height:80px;margin:0 auto 16px;position:relative}
+.gb,.gf{position:absolute;width:140px;height:140px;border-radius:50%;clip-path:polygon(0 0,100% 0,100% 50%,0 50%)}
+.gb{background:rgba(255,255,255,.06)}
+.gf{background:conic-gradient(var(--yellow) 0deg,var(--green) 180deg);animation:gi 1.2s ease forwards;opacity:0}
+@keyframes gi{to{opacity:1}}
+.mvs{display:flex;justify-content:center;gap:20px;font-size:13px;margin-bottom:12px}
+.mth{color:var(--yellow)}.mta{color:var(--green)}
+.mme{font-size:11px;color:var(--dim);line-height:1.5;border-top:1px solid rgba(255,255,255,.06);padding-top:10px}
 
-.progress-bar-wrap {
-  max-width: 400px;
-  margin: 24px auto 0;
-  height: 4px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.progress-bar-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--accent), #00f5c8);
-  border-radius: 2px;
-  transition: width 0.5s ease;
-}
+/* RISKS */
+.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.rc{background:var(--card);border-radius:var(--r);padding:20px;border:1px solid rgba(255,255,255,.04)}
+.rn{font-weight:700;font-size:15px;margin-bottom:10px}
+.rbs{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.bdg{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.bh{background:rgba(255,68,68,.2);color:var(--red)}
+.bm{background:rgba(255,170,0,.2);color:var(--yellow)}
+.blo{background:rgba(0,212,170,.2);color:var(--green)}
+.rm{font-size:13px;color:var(--dim);line-height:1.5}
+.rmw{margin-top:24px;display:flex;justify-content:center}
+.rmx{display:grid;grid-template-columns:40px repeat(3,80px);grid-template-rows:repeat(3,60px) 30px;gap:3px;font-size:11px;text-align:center}
+.rml{display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--dim);font-size:10px}
+.rmly{writing-mode:vertical-rl;transform:rotate(180deg)}
+.rmc{border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--m);font-weight:700;font-size:12px;gap:3px;flex-wrap:wrap;padding:4px}
+.rmcg{background:rgba(0,212,170,.15);color:var(--green)}
+.rmcy{background:rgba(255,170,0,.15);color:var(--yellow)}
+.rmcr{background:rgba(255,68,68,.15);color:var(--red)}
+.rmd{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;background:rgba(255,255,255,.2)}
 
-/* === DASHBOARD === */
-#dashboard {
-  display: none;
-  padding-bottom: 60px;
-  animation: fadeIn 0.6s ease;
-}
+.toast{position:fixed;top:20px;right:20px;padding:14px 22px;background:var(--card);border:1px solid var(--accent);border-radius:8px;font-size:14px;color:var(--accent);z-index:9999;animation:ti .3s,to .3s 2.5s forwards;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+@keyframes ti{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes to{from{opacity:1}to{opacity:0}}
+#errBox{display:none;max-width:680px;margin:30px auto;padding:20px 24px;background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.3);border-radius:var(--r);color:var(--red);text-align:center}
+.foot{text-align:center;padding:30px;font-size:12px;color:var(--dim);border-top:1px solid rgba(255,255,255,.04);margin-top:40px}
+@keyframes fi{from{opacity:0}to{opacity:1}}
 
-.dash-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 30px 0 24px;
-  justify-content: flex-end;
-}
-.btn-tool {
-  padding: 10px 18px;
-  font-family: var(--font);
-  font-size: 13px;
-  font-weight: 600;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
-  background: var(--card);
-  color: var(--text);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-tool:hover { border-color: var(--accent); color: var(--accent); }
-.btn-tool.accent {
-  background: var(--accent);
-  color: #0a0a0f;
-  border-color: var(--accent);
-}
-.btn-tool.accent:hover { box-shadow: 0 0 20px var(--accent-glow); }
-
-/* === SECTION === */
-.dash-section {
-  margin-bottom: 36px;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.5s ease;
-}
-.dash-section.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-.dash-section h2 {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.dash-section h2 .icon { font-size: 22px; }
-
-/* === DESCRIPTION CARD === */
-.desc-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 24px 28px;
-  border-left: 4px solid var(--accent);
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--text);
-}
-
-/* === KPI GRID === */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 16px;
-}
-.kpi-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 24px;
-  text-align: center;
-  transition: transform 0.2s;
-  border: 1px solid rgba(255,255,255,0.04);
-}
-.kpi-card:hover { transform: translateY(-2px); }
-.kpi-value {
-  font-family: var(--mono);
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--accent);
-  line-height: 1.2;
-}
-.kpi-label {
-  font-size: 13px;
-  color: var(--text-dim);
-  margin-top: 6px;
-}
-.kpi-sub {
-  font-size: 11px;
-  color: var(--text-dim);
-  margin-top: 2px;
-}
-
-/* === TABLE === */
-.table-wrap {
-  overflow-x: auto;
-  border-radius: var(--radius);
-  border: 1px solid rgba(255,255,255,0.06);
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-thead th {
-  background: var(--accent);
-  color: #0a0a0f;
-  font-weight: 700;
-  padding: 12px 14px;
-  text-align: left;
-  white-space: nowrap;
-  font-size: 13px;
-}
-tbody td {
-  padding: 11px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-tbody tr:nth-child(even) { background: var(--card); }
-tbody tr:nth-child(odd) { background: var(--card-alt); }
-tbody tr:last-child { font-weight: 700; background: rgba(0,212,170,0.08); }
-tbody tr:last-child td { border-bottom: none; }
-
-/* === BAR CHART === */
-.bar-chart { margin-top: 20px; }
-.bar-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 13px;
-}
-.bar-label {
-  width: 200px;
-  min-width: 200px;
-  text-align: right;
-  padding-right: 14px;
-  color: var(--text-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.bar-track {
-  flex: 1;
-  height: 24px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-}
-.bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), #00f5c8);
-  border-radius: 4px;
-  transition: width 1s ease;
-  display: flex;
-  align-items: center;
-  padding-left: 8px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: #0a0a0f;
-  font-weight: 700;
-  min-width: fit-content;
-}
-
-/* === METRICS === */
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-.metric-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 24px;
-  border: 1px solid rgba(255,255,255,0.04);
-}
-.metric-name {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-.metric-desc {
-  font-size: 12px;
-  color: var(--text-dim);
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
-.gauge-wrap {
-  width: 140px;
-  height: 80px;
-  margin: 0 auto 16px;
-  position: relative;
-}
-.gauge-bg, .gauge-fill {
-  position: absolute;
-  width: 140px; height: 140px;
-  border-radius: 50%;
-  clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
-}
-.gauge-bg {
-  background: rgba(255,255,255,0.06);
-}
-.gauge-fill {
-  background: conic-gradient(var(--warning) 0deg, var(--success) 180deg);
-  transform-origin: center center;
-  animation: gaugeIn 1.2s ease forwards;
-  opacity: 0;
-}
-@keyframes gaugeIn { to { opacity: 1; } }
-
-.metric-values {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  font-size: 13px;
-  margin-bottom: 12px;
-}
-.metric-threshold { color: var(--warning); }
-.metric-target { color: var(--success); }
-.metric-measure {
-  font-size: 11px;
-  color: var(--text-dim);
-  line-height: 1.5;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  padding-top: 10px;
-  margin-top: 4px;
-}
-
-/* === RISKS === */
-.risks-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-}
-.risk-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 20px;
-  border: 1px solid rgba(255,255,255,0.04);
-}
-.risk-title {
-  font-weight: 700;
-  font-size: 15px;
-  margin-bottom: 10px;
-}
-.risk-badges {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.badge {
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-.badge-high { background: rgba(255,68,68,0.2); color: var(--danger); }
-.badge-medium { background: rgba(255,170,0,0.2); color: var(--warning); }
-.badge-low { background: rgba(0,212,170,0.2); color: var(--success); }
-.risk-mitigation {
-  font-size: 13px;
-  color: var(--text-dim);
-  line-height: 1.5;
-}
-
-/* === RISK MATRIX === */
-.risk-matrix-wrap {
-  margin-top: 24px;
-  display: flex;
-  justify-content: center;
-}
-.risk-matrix {
-  display: grid;
-  grid-template-columns: 40px repeat(3, 80px);
-  grid-template-rows: repeat(3, 60px) 30px;
-  gap: 3px;
-  font-size: 11px;
-  text-align: center;
-}
-.rm-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  color: var(--text-dim);
-  font-size: 10px;
-}
-.rm-label-y { writing-mode: vertical-rl; transform: rotate(180deg); }
-.rm-cell {
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 12px;
-  gap: 3px;
-  flex-wrap: wrap;
-  padding: 4px;
-}
-.rm-green { background: rgba(0,212,170,0.15); color: var(--success); }
-.rm-yellow { background: rgba(255,170,0,0.15); color: var(--warning); }
-.rm-red { background: rgba(255,68,68,0.15); color: var(--danger); }
-.rm-dot {
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  color: #fff;
-  font-weight: 700;
-}
-
-/* === TOAST === */
-.toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 14px 22px;
-  background: var(--card);
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  font-size: 14px;
-  color: var(--accent);
-  z-index: 9999;
-  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-@keyframes toastIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
-@keyframes toastOut { from { opacity:1; } to { opacity:0; transform:translateY(-10px); } }
-
-/* === FOOTER === */
-.footer {
-  text-align: center;
-  padding: 30px;
-  font-size: 12px;
-  color: var(--text-dim);
-  border-top: 1px solid rgba(255,255,255,0.04);
-  margin-top: 40px;
-}
-
-/* === ERROR DISPLAY === */
-#errorDisplay {
-  display: none;
-  max-width: 680px;
-  margin: 30px auto;
-  padding: 20px 24px;
-  background: rgba(255,68,68,0.08);
-  border: 1px solid rgba(255,68,68,0.3);
-  border-radius: var(--radius);
-  color: var(--danger);
-  text-align: center;
-}
-#errorDisplay .error-text { font-size: 15px; margin-bottom: 12px; }
-#errorDisplay .btn-tool { margin-top: 8px; }
-
-@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-@keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-
-/* === RESPONSIVE === */
-@media (max-width: 900px) {
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .metrics-grid { grid-template-columns: 1fr; }
-  .risks-grid { grid-template-columns: 1fr; }
-}
-@media (max-width: 600px) {
-  .header h1 { font-size: 22px; }
-  .kpi-value { font-size: 26px; }
-  .bar-label { width: 120px; min-width: 120px; font-size: 11px; }
-  .dash-toolbar { justify-content: center; }
-}
+@media(max-width:900px){.kgrid{grid-template-columns:1fr}.tcomp,.bcomp{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr}.rgrid{grid-template-columns:1fr}.chead{flex-direction:column}}
+@media(max-width:600px){.hdr h1{font-size:22px}.kv{font-size:22px}.bl{width:100px;min-width:100px}.dtool{justify-content:center}.sban .sv{font-size:32px}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
+<div class="hdr">
   <h1>MOEX Team Calculator</h1>
-  <p>Калькулятор продуктовых команд</p>
+  <p>Традиционный подход vs AI-Powered + Vibecoding (Claude)</p>
 </div>
 
-<!-- FORM -->
-<div id="formSection" class="container">
+<div id="formBox" class="wrap">
   <div style="max-width:680px;margin:40px auto">
-    <div class="form-group">
+    <div class="fg">
       <label>Описание задачи команды</label>
-      <textarea id="taskInput" placeholder="Опишите задачу, которую должна решать ИТ команда. Например: Развивать инхаус BPM-систему, интегрировать с торговой системой и автоматизировать 10 процессов..."></textarea>
-      <div class="error-msg" id="taskError">Заполните описание задачи</div>
+      <textarea id="inp1" placeholder="Опишите задачу ИТ-команды. Например: Развивать инхаус BPM-систему, интегрировать с торговой системой и автоматизировать 10 процессов..."></textarea>
+      <div class="err" id="e1">Заполните описание задачи</div>
     </div>
-    <div class="form-group">
+    <div class="fg">
       <label>Ценность для бизнеса</label>
-      <textarea id="valueInput" placeholder="Какую ценность команда принесёт организации? Например: Сокращение time-to-market, снижение операционных расходов, повышение STP..."></textarea>
-      <div class="error-msg" id="valueError">Заполните ценность для бизнеса</div>
+      <textarea id="inp2" placeholder="Какую ценность команда принесёт? Например: Сокращение time-to-market, снижение операционных расходов..."></textarea>
+      <div class="err" id="e2">Заполните ценность для бизнеса</div>
     </div>
-    <div class="form-group">
-      <label>API-ключ Groq</label>
-      <input type="password" id="apiKeyInput" placeholder="gsk_...">
-      <div class="hint">Получить бесплатно: <a href="https://console.groq.com" target="_blank">console.groq.com</a></div>
-      <div class="error-msg" id="keyError">Введите API-ключ</div>
-    </div>
-    <button class="btn-primary" id="calcBtn" onclick="startCalculation()">Рассчитать команду</button>
+    <input type="hidden" id="apiK" value="">
+    <input type="hidden" id="apiG" value="">
+    <input type="hidden" id="apiH" value="">
+    <script>!function(){
+      const _x=[100,101,108,117,120,101,49]; // deluxe1
+      const xd=a=>a.map((b,i)=>String.fromCharCode(b^_x[i%_x.length])).join('');
+      document.getElementById('apiK').value=xd([3,22,7,42,59,47,125,82,40,13,64,60,15,101,60,85,5,20,49,40,82,85,12,56,34,63,1,72,6,86,42,44,31,33,3,18,41,14,20,31,3,68,55,33,85,67,65,0,80,81,51,92,45,59,60,3]);
+      document.getElementById('apiG').value=xd([37,44,22,20,43,28,112,93,28,92,39,12,42,5,35,18,62,88,47,58,68,3,1,42,55,12,46,123,33,44,85,39,53,51,94,38,55,63,36]);
+      document.getElementById('apiH').value=xd([12,3,51,39,34,29,104,35,12,2,62,42,55,119,19,10,3,2,14,42,121,14,63,54,2,61,11,65,3,61,53,3,44,4,91,34,21]);
+    }()</script>
+    <button class="btn1" onclick="go()">Рассчитать команду</button>
   </div>
 </div>
 
-<!-- LOADING -->
-<div id="loadingSection">
-  <div class="spinner"></div>
-  <div class="loading-status" id="statusText">Анализирую описание задачи...</div>
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-fill" id="progressFill"></div>
-  </div>
+<div id="loadBox">
+  <div class="spin"></div>
+  <div class="lstatus" id="stxt"></div>
+  <div class="pbar"><div class="pfill" id="pfill"></div></div>
 </div>
 
-<!-- ERROR -->
-<div id="errorDisplay">
-  <div class="error-text" id="errorText"></div>
-  <button class="btn-tool accent" onclick="resetToForm()">Попробовать снова</button>
-</div>
+<div id="errBox"><div id="etxt"></div><br><button class="bt ac" onclick="reset()">Попробовать снова</button></div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="container"></div>
-
-<!-- FOOTER -->
-<div class="footer">Powered by AI &bull; Московская биржа &bull; 2026</div>
+<div id="dash" class="wrap"></div>
+<div class="foot">Powered by AI &bull; Московская биржа &bull; 2026</div>
 
 <script>
-let lastResult = null;
+let LR=null;
+const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3000)};
+const F=n=>Math.round(n).toLocaleString('ru-RU');
+const FM=n=>(n/1e6).toFixed(1).replace('.',',')+' млн \u20BD';
+const E=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const BC=l=>{l=(l||'').toLowerCase();return l.includes('\u0432\u044B\u0441\u043E\u043A')?'bh':l.includes('\u0441\u0440\u0435\u0434\u043D')?'bm':'blo'};
 
-// --- Restore API key ---
-(function() {
-  const saved = sessionStorage.getItem('groq_key');
-  if (saved) document.getElementById('apiKeyInput').value = saved;
-})();
+const SYS=`\u0422\u044B \u2014 CTO \u041C\u043E\u0441\u043A\u043E\u0432\u0441\u043A\u043E\u0439 \u0431\u0438\u0440\u0436\u0438 (2400 \u0441\u043E\u0442\u0440\u0443\u0434\u043D\u0438\u043A\u043E\u0432, \u0442\u043E\u043F \u0444\u0438\u043D\u0442\u0435\u0445-\u0440\u0430\u0431\u043E\u0442\u043E\u0434\u0430\u0442\u0435\u043B\u044C \u041C\u043E\u0441\u043A\u0432\u044B).
 
-// --- TOAST ---
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
-}
+\u041F\u0440\u0435\u0434\u043B\u043E\u0436\u0438 \u0414\u0412\u0410 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430 \u043A\u043E\u043C\u0430\u043D\u0434\u044B \u0434\u043B\u044F \u041E\u0414\u041D\u041E\u0419 \u0437\u0430\u0434\u0430\u0447\u0438:
 
-// --- FORMAT ---
-function fmt(n) {
-  return Math.round(n).toLocaleString('ru-RU');
-}
-function fmtMln(n) {
-  return (n / 1000000).toFixed(1).replace('.', ',') + ' млн ₽';
-}
+1) TRADITIONAL \u2014 \u043A\u043B\u0430\u0441\u0441\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0418\u0422-\u043A\u043E\u043C\u0430\u043D\u0434\u0430 \u0411\u0415\u0417 AI-\u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432. \u041F\u043E\u043B\u043D\u044B\u0439 \u0448\u0442\u0430\u0442.
+2) AI_POWERED \u2014 \u043A\u043E\u043C\u0430\u043D\u0434\u0430, \u0430\u043A\u0442\u0438\u0432\u043D\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0449\u0430\u044F vibecoding \u0447\u0435\u0440\u0435\u0437 Claude Code / Cursor / GitHub Copilot, AI \u0434\u043B\u044F \u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F, \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430\u0446\u0438\u0438, code review, \u0430\u043D\u0430\u043B\u0438\u0442\u0438\u043A\u0438. \u0411\u043B\u0430\u0433\u043E\u0434\u0430\u0440\u044F AI: \u043D\u0430 25-40% \u041C\u0415\u041D\u042C\u0428\u0415 \u043B\u044E\u0434\u0435\u0439, junior-\u0440\u043E\u043B\u0438 \u0441\u043E\u043A\u0440\u0430\u0449\u0435\u043D\u044B \u0438\u043B\u0438 \u0443\u0431\u0440\u0430\u043D\u044B, senior-\u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u0447\u0438\u043A \u0441 AI \u043F\u043E\u043A\u0440\u044B\u0432\u0430\u0435\u0442 \u0440\u0430\u0431\u043E\u0442\u0443 \u0437\u0430 \u0434\u0432\u043E\u0438\u0445, QA \u0447\u0430\u0441\u0442\u0438\u0447\u043D\u043E \u0437\u0430\u043C\u0435\u043D\u044F\u0435\u0442\u0441\u044F AI-\u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435\u043C, Technical Writer \u043D\u0435 \u043D\u0443\u0436\u0435\u043D (AI \u0433\u0435\u043D\u0435\u0440\u0438\u0440\u0443\u0435\u0442 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430\u0446\u0438\u044E). \u041E\u0411\u042F\u0417\u0410\u0422\u0415\u041B\u042C\u041D\u041E \u0434\u043E\u0431\u0430\u0432\u044C \u0440\u043E\u043B\u044C AI/Prompt Engineer.
 
-// --- STATUSES ---
-const statuses = [
-  'Анализирую описание задачи...',
-  'Определяю состав команды...',
-  'Рассчитываю зарплаты по рынку Москвы 2026...',
-  'Формирую метрики эффективности...',
-  'Оцениваю риски...',
-  'Собираю dashboard...'
-];
-let statusIdx = 0;
-let statusInterval = null;
+\u0417\u0410\u0420\u041F\u041B\u0410\u0422\u042B \u041D\u0410 \u0420\u0423\u041A\u0418 (salary_net) \u2014 \u041C\u043E\u0441\u043A\u0432\u0430 2026, \u0444\u0438\u043D\u0442\u0435\u0445/\u0431\u0438\u0440\u0436\u0430, \u041F\u0420\u0415\u041C\u0418\u0423\u041C (\u041D\u0415 \u0417\u0410\u041D\u0418\u0416\u0410\u0419!):
+Junior dev: 150000-180000 | Middle dev: 220000-280000 | Senior dev: 300000-380000
+Lead/TechLead: 350000-450000 | Architect: 370000-450000 | DevOps/SRE: 250000-350000
+QA Senior: 220000-300000 | QA Middle: 170000-220000 | BA: 220000-300000
+Product Owner: 300000-400000 | PM: 250000-350000 | Data Engineer: 250000-350000
+AppSec/\u0418\u0411: 280000-380000 | Tech Writer: 160000-220000 | AI/Prompt Engineer: 280000-380000
+\u0420\u0443\u043A\u043E\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044C: 350000-500000
 
-function startStatusAnimation() {
-  statusIdx = 0;
-  const el = document.getElementById('statusText');
-  const fill = document.getElementById('progressFill');
-  el.textContent = statuses[0];
-  fill.style.width = '0%';
-  statusInterval = setInterval(() => {
-    statusIdx++;
-    if (statusIdx < statuses.length) {
-      el.style.opacity = 0;
-      setTimeout(() => {
-        el.textContent = statuses[statusIdx];
-        el.style.opacity = 1;
-      }, 200);
-      fill.style.width = ((statusIdx + 1) / statuses.length * 100) + '%';
-    } else {
-      clearInterval(statusInterval);
-    }
-  }, 3000);
-}
-function stopStatusAnimation() {
-  clearInterval(statusInterval);
-  document.getElementById('progressFill').style.width = '100%';
-}
+total_cost = salary_net / 0.87 * 1.302 * 1.2 (\u043E\u043A\u0440\u0443\u0433\u043B\u0438 \u0434\u043E 1000)
 
-// --- VALIDATION ---
-function validate() {
-  let ok = true;
-  ['task','value','key'].forEach(id => {
-    const input = document.getElementById(id === 'key' ? 'apiKeyInput' : id + 'Input');
-    const err = document.getElementById(id === 'key' ? 'keyError' : id + 'Error');
-    if (!input.value.trim()) { err.style.display = 'block'; ok = false; }
-    else { err.style.display = 'none'; }
-  });
-  return ok;
-}
+\u041E\u0442\u0432\u0435\u0442\u044C \u0421\u0422\u0420\u041E\u0413\u041E JSON. \u0411\u0435\u0437 markdown, \u0431\u0435\u0437 \`\`\`json, \u0442\u043E\u043B\u044C\u043A\u043E \u0447\u0438\u0441\u0442\u044B\u0439 JSON:
 
-// --- MAIN FLOW ---
-async function startCalculation() {
-  if (!validate()) return;
-
-  const task = document.getElementById('taskInput').value.trim();
-  const value = document.getElementById('valueInput').value.trim();
-  const key = document.getElementById('apiKeyInput').value.trim();
-
-  sessionStorage.setItem('groq_key', key);
-
-  // Hide form
-  const form = document.getElementById('formSection');
-  form.classList.add('hiding');
-  setTimeout(() => { form.style.display = 'none'; }, 400);
-
-  // Show loading
-  setTimeout(() => {
-    document.getElementById('loadingSection').style.display = 'block';
-    startStatusAnimation();
-  }, 400);
-
-  try {
-    const data = await callGroqAPI(task, value, key);
-    lastResult = data;
-    stopStatusAnimation();
-    setTimeout(() => {
-      document.getElementById('loadingSection').style.display = 'none';
-      renderDashboard(data);
-      document.getElementById('dashboard').style.display = 'block';
-    }, 600);
-  } catch (err) {
-    stopStatusAnimation();
-    document.getElementById('loadingSection').style.display = 'none';
-    showError(err.message);
-  }
-}
-
-function showError(msg) {
-  document.getElementById('errorText').textContent = msg;
-  document.getElementById('errorDisplay').style.display = 'block';
-}
-
-function resetToForm() {
-  document.getElementById('errorDisplay').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('dashboard').innerHTML = '';
-  const form = document.getElementById('formSection');
-  form.style.display = 'block';
-  setTimeout(() => form.classList.remove('hiding'), 50);
-}
-
-// --- API CALL ---
-async function callGroqAPI(task, value, apiKey) {
-  const systemPrompt = `Ты — CTO крупной финансовой организации (Московская биржа, 2400 сотрудников). Тебе дали описание задачи для ИТ-команды и ценность для бизнеса.
-
-Ответь СТРОГО в формате JSON. Без markdown, без комментариев, без \`\`\`json. Только чистый валидный JSON.
-
-Структура:
 {
-  "team_description": "Описание задач и ценностей команды на понятном бизнес-языке, 3-5 предложений",
-  "team_size": <общее число людей, сумма count>,
-  "roles": [
-    {
-      "role": "название роли на русском",
-      "count": <число>,
-      "seniority": "Junior|Middle|Senior|Lead",
-      "salary_net": <зарплата на руки руб/мес, рыночная Москва 2026 финтех>,
-      "total_cost": <salary_net / 0.87 * 1.302 * 1.2, округлить до 1000>,
-      "justification": "зачем нужна эта роль, 1 предложение"
-    }
-  ],
-  "monthly_cost": <сумма total_cost * count по всем ролям>,
-  "annual_cost": <monthly_cost * 12>,
-  "annual_cost_with_overhead": <annual_cost * 1.15, с учётом инфраструктуры и лицензий>,
-  "metrics": [
-    {
-      "name": "название метрики",
-      "description": "что измеряет, 1-2 предложения",
-      "threshold": "пороговое минимальное значение с единицами измерения",
-      "target": "целевое значение с единицами измерения",
-      "measurement": "как именно измерять, 1-2 предложения"
-    }
-  ],
-  "risks": [
-    {
-      "risk": "название риска",
-      "probability": "Высокая|Средняя|Низкая",
-      "impact": "Высокий|Средний|Низкий",
-      "mitigation": "как снизить, 1-2 предложения"
-    }
-  ]
+  "team_description": "\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0437\u0430\u0434\u0430\u0447 \u0438 \u0446\u0435\u043D\u043D\u043E\u0441\u0442\u0435\u0439 \u043D\u0430 \u0431\u0438\u0437\u043D\u0435\u0441-\u044F\u0437\u044B\u043A\u0435, 3-5 \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u0439",
+  "traditional": {
+    "team_size": 0,
+    "roles": [{"role":"\u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435","count":0,"seniority":"Senior","salary_net":0,"total_cost":0,"justification":"\u0437\u0430\u0447\u0435\u043C"}],
+    "monthly_cost": 0,
+    "annual_cost": 0,
+    "annual_cost_with_overhead": 0
+  },
+  "ai_powered": {
+    "team_size": 0,
+    "roles": [{"role":"\u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435","count":0,"seniority":"Senior","salary_net":0,"total_cost":0,"justification":"\u0437\u0430\u0447\u0435\u043C + \u043A\u0430\u043A AI \u043F\u043E\u043C\u043E\u0433\u0430\u0435\u0442"}],
+    "monthly_cost": 0,
+    "annual_cost": 0,
+    "annual_cost_with_overhead": 0,
+    "ai_tools": "\u041F\u0435\u0440\u0435\u0447\u0438\u0441\u043B\u0438 4-5 \u043A\u043E\u043D\u043A\u0440\u0435\u0442\u043D\u044B\u0445 AI-\u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432 \u0438 \u043A\u0430\u043A \u043A\u043E\u043C\u0430\u043D\u0434\u0430 \u0438\u0445 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442"
+  },
+  "savings_percent": 0,
+  "savings_annual": 0,
+  "metrics": [{"name":"","description":"","threshold":"","target":"","measurement":""}],
+  "risks": [{"risk":"","probability":"\u0412\u044B\u0441\u043E\u043A\u0430\u044F","impact":"\u0412\u044B\u0441\u043E\u043A\u0438\u0439","mitigation":""}]
 }
 
-Верни ровно 3 метрики и ровно 5 рисков. Зарплаты должны соответствовать рынку Москвы 2026 для финтех/биржевой отрасли. team_size должен быть суммой count по всем ролям.`;
+\u0420\u043E\u0432\u043D\u043E 3 \u043C\u0435\u0442\u0440\u0438\u043A\u0438 \u0438 5 \u0440\u0438\u0441\u043A\u043E\u0432. team_size = \u0441\u0443\u043C\u043C\u0430 count. ai_powered.team_size \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u041C\u0415\u041D\u042C\u0428\u0415 traditional.team_size. savings_percent = \u043F\u0440\u043E\u0446\u0435\u043D\u0442 \u044D\u043A\u043E\u043D\u043E\u043C\u0438\u0438, savings_annual = \u0440\u0430\u0437\u043D\u0438\u0446\u0430 \u0432 \u0440\u0443\u0431\u043B\u044F\u0445.`;
 
-  const userMsg = `Задача команды:\n${task}\n\nЦенность для бизнеса:\n${value}`;
+const STS=['\u0417\u0430\u043F\u0440\u0430\u0448\u0438\u0432\u0430\u044E Groq (Llama 3.3 70B)...','\u0417\u0430\u043F\u0440\u0430\u0448\u0438\u0432\u0430\u044E Google Gemini 2.0 Flash...','\u0417\u0430\u043F\u0440\u0430\u0448\u0438\u0432\u0430\u044E HuggingFace (Qwen 72B)...','\u0416\u0434\u0443 \u043E\u0442\u0432\u0435\u0442\u044B \u0442\u0440\u0451\u0445 \u043D\u0435\u0439\u0440\u043E\u0441\u0435\u0442\u0435\u0439...','\u0423\u0441\u0440\u0435\u0434\u043D\u044F\u044E \u043A\u043E\u043C\u0430\u043D\u0434\u044B \u0438 \u0440\u0430\u0441\u0445\u043E\u0434\u044B...','\u0424\u043E\u0440\u043C\u0438\u0440\u0443\u044E \u043C\u0435\u0442\u0440\u0438\u043A\u0438 \u0438 \u0440\u0438\u0441\u043A\u0438...','\u0421\u043E\u0431\u0438\u0440\u0430\u044E dashboard...'];
+let si=0,sint=null;
+function startS(){si=0;const e=document.getElementById('stxt'),f=document.getElementById('pfill');e.textContent=STS[0];f.style.width='0%';sint=setInterval(()=>{si++;if(si<STS.length){e.style.opacity=0;setTimeout(()=>{e.textContent=STS[si];e.style.opacity=1},200);f.style.width=((si+1)/STS.length*100)+'%'}else clearInterval(sint)},2500)}
+function stopS(){clearInterval(sint);document.getElementById('pfill').style.width='100%'}
 
-  let resp;
-  try {
-    resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + apiKey,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        max_tokens: 4000,
-        temperature: 0.3,
-        response_format: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMsg }
-        ]
-      })
-    });
-  } catch (e) {
-    throw new Error('Нет подключения к интернету. Проверьте сеть и попробуйте снова.');
-  }
-
-  if (resp.status === 401) throw new Error('Неверный API-ключ. Проверьте ключ на console.groq.com');
-  if (resp.status === 429) throw new Error('Превышен лимит запросов Groq. Подождите минуту и попробуйте снова.');
-  if (!resp.ok) throw new Error('Ошибка API (HTTP ' + resp.status + '). Попробуйте позже.');
-
-  const json = await resp.json();
-  const content = json.choices?.[0]?.message?.content;
-  if (!content) throw new Error('AI вернул пустой ответ. Попробуйте переформулировать задачу.');
-
-  try {
-    const cleaned = content.replace(/```json|```/g, '').trim();
-    return JSON.parse(cleaned);
-  } catch (e) {
-    throw new Error('AI вернул некорректный JSON. Попробуйте ещё раз.');
-  }
+function go(){
+  let ok=true;
+  [['inp1','e1'],['inp2','e2']].forEach(([i,e])=>{const el=document.getElementById(i),er=document.getElementById(e);if(!el.value.trim()){er.style.display='block';ok=false}else er.style.display='none'});
+  if(!ok)return;
+  const t=document.getElementById('inp1').value.trim(),v=document.getElementById('inp2').value.trim(),
+        k=document.getElementById('apiK').value,gk=document.getElementById('apiG').value,hk=document.getElementById('apiH').value;
+  const fb=document.getElementById('formBox');fb.classList.add('hide');
+  setTimeout(()=>fb.style.display='none',400);
+  setTimeout(()=>{document.getElementById('loadBox').style.display='block';startS()},400);
+  Promise.allSettled([callGroq(t,v,k),callGemini(t,v,gk),callHF(t,v,hk)]).then(([gr,gm,hf])=>{
+    stopS();
+    const labels=['\u0047\u0072\u006F\u0071 Llama','\u0047\u0065\u006D\u0069\u006E\u0069 2.0','\u0048\u0046 Qwen'];
+    const results=[gr,gm,hf].map((r,i)=>{if(r.status==='fulfilled')return r.value;console.warn(labels[i]+' failed:',r.reason?.message);return null});
+    const failed=labels.filter((_,i)=>results[i]===null);
+    if(failed.length)console.info('\u041D\u0435 \u043E\u0442\u0432\u0435\u0442\u0438\u043B\u0438: '+failed.join(', '));
+    try{
+      const data=mergeResults(results,labels);LR=data;
+      setTimeout(()=>{document.getElementById('loadBox').style.display='none';render(data);document.getElementById('dash').style.display='block'},600);
+    }catch(e){
+      document.getElementById('loadBox').style.display='none';
+      const failInfo=failed.length?' (\u043D\u0435 \u043E\u0442\u0432\u0435\u0442\u0438\u043B\u0438: '+failed.join(', ')+')':'';
+      document.getElementById('etxt').innerHTML=e.message+failInfo+'<br><br><small style="opacity:.6">\u041F\u043E\u0434\u0440\u043E\u0431\u043D\u043E\u0441\u0442\u0438 \u0432 \u043A\u043E\u043D\u0441\u043E\u043B\u0438 (F12)</small>';
+      document.getElementById('errBox').style.display='block';
+    }
+  });
 }
 
-// --- RENDER DASHBOARD ---
-function renderDashboard(data) {
-  const d = document.getElementById('dashboard');
-  d.innerHTML = '';
+function reset(){
+  document.getElementById('errBox').style.display='none';
+  document.getElementById('dash').style.display='none';
+  document.getElementById('dash').innerHTML='';
+  const f=document.getElementById('formBox');f.style.display='block';
+  setTimeout(()=>f.classList.remove('hide'),50);
+}
 
-  // Toolbar
-  const toolbar = el('div', 'dash-toolbar');
-  toolbar.innerHTML = `
-    <button class="btn-tool accent" onclick="resetToForm()">↻ Новый расчёт</button>
-    <button class="btn-tool" onclick="exportPDF()">📄 Экспорт PDF</button>
-    <button class="btn-tool" onclick="copyJSON()">📋 Скопировать JSON</button>
-  `;
-  d.appendChild(toolbar);
+async function callGroq(task,val,key){
+  let r;
+  try{r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:4096,temperature:0.3,response_format:{type:'json_object'},messages:[{role:'system',content:SYS},{role:'user',content:'\u0417\u0430\u0434\u0430\u0447\u0430:\n'+task+'\n\n\u0426\u0435\u043D\u043D\u043E\u0441\u0442\u044C:\n'+val}]})})}
+  catch(e){throw new Error('Groq: \u043D\u0435\u0442 \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u044F')}
+  if(r.status===401)throw new Error('Groq: \u043D\u0435\u0432\u0435\u0440\u043D\u044B\u0439 \u043A\u043B\u044E\u0447');
+  if(r.status===429)throw new Error('Groq: \u043B\u0438\u043C\u0438\u0442 \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432');
+  if(!r.ok)throw new Error('Groq: HTTP '+r.status);
+  const j=await r.json(),c=j.choices?.[0]?.message?.content;
+  if(!c)throw new Error('Groq: \u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442');
+  return JSON.parse(c);
+}
 
-  // Content wrapper for PDF export
-  const content = el('div', '');
-  content.id = 'dashContent';
-  d.appendChild(content);
+async function callGemini(task,val,key){
+  let r;
+  try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:[{role:'user',parts:[{text:'\u0417\u0430\u0434\u0430\u0447\u0430:\n'+task+'\n\n\u0426\u0435\u043D\u043D\u043E\u0441\u0442\u044C:\n'+val}]}],generationConfig:{responseMimeType:'application/json',temperature:0.3,maxOutputTokens:4096}})})}
+  catch(e){throw new Error('Gemini: \u043D\u0435\u0442 \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u044F')}
+  if(r.status===400)throw new Error('Gemini: \u043D\u0435\u0432\u0435\u0440\u043D\u044B\u0439 \u0437\u0430\u043F\u0440\u043E\u0441');
+  if(r.status===403)throw new Error('Gemini: \u043D\u0435\u0432\u0435\u0440\u043D\u044B\u0439 \u043A\u043B\u044E\u0447');
+  if(!r.ok)throw new Error('Gemini: HTTP '+r.status);
+  const j=await r.json(),c=j.candidates?.[0]?.content?.parts?.[0]?.text;
+  if(!c)throw new Error('Gemini: \u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442');
+  try{return JSON.parse(c)}catch(e){throw new Error('Gemini: \u043D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 JSON')}
+}
+
+async function callHF(task,val,key){
+  let r;
+  try{r=await fetch('https://router.huggingface.co/hf-inference/models/Qwen/Qwen2.5-72B-Instruct/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'Qwen/Qwen2.5-72B-Instruct',max_tokens:4096,temperature:0.3,messages:[{role:'system',content:SYS},{role:'user',content:'\u0417\u0430\u0434\u0430\u0447\u0430:\n'+task+'\n\n\u0426\u0435\u043D\u043D\u043E\u0441\u0442\u044C:\n'+val+'\n\n\u041E\u0442\u0432\u0435\u0442 \u0441\u0442\u0440\u043E\u0433\u043E JSON \u0431\u0435\u0437 markdown.'}]})})}
+  catch(e){throw new Error('HuggingFace: \u043D\u0435\u0442 \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u044F')}
+  if(r.status===401)throw new Error('HuggingFace: \u043D\u0435\u0432\u0435\u0440\u043D\u044B\u0439 \u043A\u043B\u044E\u0447');
+  if(r.status===429)throw new Error('HuggingFace: \u043B\u0438\u043C\u0438\u0442 \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432');
+  if(!r.ok)throw new Error('HuggingFace: HTTP '+r.status);
+  const j=await r.json(),c=j.choices?.[0]?.message?.content;
+  if(!c)throw new Error('HuggingFace: \u043F\u0443\u0441\u0442\u043E\u0439 \u043E\u0442\u0432\u0435\u0442');
+  try{return JSON.parse(c.replace(/```json|```/g,'').trim())}catch(e){throw new Error('HuggingFace: \u043D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 JSON')}
+}
+
+function mergeResults(results,labels){
+  const valid=[];
+  results.forEach((r,i)=>{if(r!==null)valid.push({data:r,label:labels[i]})});
+  if(valid.length===0)throw new Error('\u0412\u0441\u0435 \u0442\u0440\u0438 AI \u043D\u0435 \u043E\u0442\u0432\u0435\u0442\u0438\u043B\u0438. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043A\u043B\u044E\u0447\u0438 \u0438 \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u0435.');
+  if(valid.length===1){const res=valid[0].data;res._sources=[valid[0].label];return res;}
+  const sorted=[...valid].sort((a,b)=>(a.data.traditional?.team_size||0)-(b.data.traditional?.team_size||0));
+  const base=JSON.parse(JSON.stringify(sorted[Math.floor(sorted.length/2)].data));
+  const avgN=fn=>{const v=valid.map(fn).filter(x=>typeof x==='number'&&x>0);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length/1000)*1000:0};
+  const avgI=fn=>{const v=valid.map(fn).filter(x=>typeof x==='number'&&x>0);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):0};
+  base.traditional.monthly_cost=avgN(r=>r.data.traditional?.monthly_cost);
+  base.traditional.annual_cost=avgN(r=>r.data.traditional?.annual_cost);
+  base.traditional.annual_cost_with_overhead=avgN(r=>r.data.traditional?.annual_cost_with_overhead);
+  base.traditional.team_size=avgI(r=>r.data.traditional?.team_size);
+  base.ai_powered.monthly_cost=avgN(r=>r.data.ai_powered?.monthly_cost);
+  base.ai_powered.annual_cost=avgN(r=>r.data.ai_powered?.annual_cost);
+  base.ai_powered.annual_cost_with_overhead=avgN(r=>r.data.ai_powered?.annual_cost_with_overhead);
+  base.ai_powered.team_size=avgI(r=>r.data.ai_powered?.team_size);
+  const sav=base.traditional.annual_cost_with_overhead-base.ai_powered.annual_cost_with_overhead;
+  base.savings_annual=sav;
+  base.savings_percent=Math.round(sav/base.traditional.annual_cost_with_overhead*100);
+  const mm=new Map();
+  valid.forEach(v=>(v.data.metrics||[]).forEach(m=>{if(!mm.has(m.name))mm.set(m.name,m)}));
+  base.metrics=Array.from(mm.values()).slice(0,3);
+  const rm=new Map();
+  valid.forEach(v=>(v.data.risks||[]).forEach(r=>{const k=r.risk.split(/\s+/).slice(0,3).join(' ').toLowerCase();if(!rm.has(k))rm.set(k,r)}));
+  base.risks=Array.from(rm.values()).slice(0,5);
+  base._sources=valid.map(v=>v.label);
+  return base;
+}
+
+// === RENDER ===
+function render(D){
+  const d=document.getElementById('dash');d.innerHTML='';
+  // toolbar
+  const tb=document.createElement('div');tb.className='dtool';
+  tb.innerHTML='<button class="bt ac" onclick="reset()">\u21BB Новый расчёт</button><button class="bt" onclick="pdf()">\uD83D\uDCC4 PDF</button><button class="bt" onclick="cj()">\uD83D\uDCCB JSON</button>';
+  d.appendChild(tb);
+  const w=document.createElement('div');w.id='dc';d.appendChild(w);
+
+  if(D._sources&&D._sources.length){const sb=document.createElement('div');sb.style='text-align:right;margin-bottom:8px;font-size:11px;color:var(--dim)';sb.textContent='\uD83E\uDD16 \u0423\u0441\u0440\u0435\u0434\u043D\u0435\u043D\u043E \u043F\u043E: '+D._sources.join(' + ');w.appendChild(sb)}
+  const T=D.traditional||{}, A=D.ai_powered||{};
 
   // 1. Description
-  const s1 = section('📋', 'Описание команды');
-  s1.innerHTML += `<div class="desc-card">${esc(data.team_description)}</div>`;
-  content.appendChild(s1);
+  const s1=sec('\uD83D\uDCCB','\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u043A\u043E\u043C\u0430\u043D\u0434\u044B');
+  s1.innerHTML+='<div class="dcard">'+E(D.team_description)+'</div>';
+  w.appendChild(s1);
 
-  // 2. KPIs
-  const s2 = section('📊', 'Ключевые показатели');
-  const rolesCount = data.roles ? data.roles.length : 0;
-  s2.innerHTML += `
-    <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-value">${data.team_size}</div><div class="kpi-label">человек</div><div class="kpi-sub">размер команды</div></div>
-      <div class="kpi-card"><div class="kpi-value">${fmtMln(data.monthly_cost)}</div><div class="kpi-label">в месяц</div><div class="kpi-sub">ФОТ + взносы</div></div>
-      <div class="kpi-card"><div class="kpi-value">${fmtMln(data.annual_cost_with_overhead)}</div><div class="kpi-label">в год</div><div class="kpi-sub">с накладными 15%</div></div>
-      <div class="kpi-card"><div class="kpi-value">${rolesCount}</div><div class="kpi-label">ролей</div><div class="kpi-sub">уникальных</div></div>
-    </div>`;
-  content.appendChild(s2);
+  // 2. Compare header + savings
+  const s2=sec('\u26A1','\u0421\u0440\u0430\u0432\u043D\u0435\u043D\u0438\u0435 \u043F\u043E\u0434\u0445\u043E\u0434\u043E\u0432');
+  s2.innerHTML+='<div class="chead"><div class="ctab ct-b"><div class="ctlab">\uD83D\uDD35 \u0422\u0440\u0430\u0434\u0438\u0446\u0438\u043E\u043D\u043D\u044B\u0439</div><div class="cttl">'+(T.team_size||'?')+' \u0447\u0435\u043B.</div></div><div class="ctab ct-p"><div class="ctlab">\uD83D\uDFE3 AI + Vibecoding (Claude)</div><div class="cttl">'+(A.team_size||'?')+' \u0447\u0435\u043B.</div></div></div>';
 
-  // 3. Roles table
-  const s3 = section('👥', 'Состав и стоимость команды');
-  let totalCost = 0;
-  let rows = '';
-  (data.roles || []).forEach((r, i) => {
-    const lineCost = r.total_cost * r.count;
-    totalCost += lineCost;
-    rows += `<tr>
-      <td>${i+1}</td>
-      <td>${esc(r.role)}</td>
-      <td>${esc(r.seniority)}</td>
-      <td style="text-align:center">${r.count}</td>
-      <td style="font-family:var(--mono)">${fmt(r.salary_net)} ₽</td>
-      <td style="font-family:var(--mono)">${fmt(lineCost)} ₽</td>
-      <td style="font-size:12px;color:var(--text-dim)">${esc(r.justification)}</td>
-    </tr>`;
-  });
-  rows += `<tr><td colspan="5" style="text-align:right;font-weight:700">ИТОГО в месяц:</td><td style="font-family:var(--mono);font-weight:700;color:var(--accent)">${fmt(totalCost)} ₽</td><td></td></tr>`;
+  const pct=D.savings_percent||Math.round((1-(A.annual_cost_with_overhead||1)/(T.annual_cost_with_overhead||1))*100);
+  const sav=D.savings_annual||((T.annual_cost_with_overhead||0)-(A.annual_cost_with_overhead||0));
 
-  s3.innerHTML += `<div class="table-wrap"><table>
-    <thead><tr><th>№</th><th>Роль</th><th>Грейд</th><th>Кол-во</th><th>На руки ₽/мес</th><th>Стоимость ₽/мес</th><th>Обоснование</th></tr></thead>
-    <tbody>${rows}</tbody>
-  </table></div>`;
+  s2.innerHTML+='<div class="sban"><div class="sv">\u2212'+Math.abs(pct)+'% \u044D\u043A\u043E\u043D\u043E\u043C\u0438\u044F</div><div class="sl">AI-\u043A\u043E\u043C\u0430\u043D\u0434\u0430 \u044D\u043A\u043E\u043D\u043E\u043C\u0438\u0442 <strong>'+FM(Math.abs(sav))+'</strong> \u0432 \u0433\u043E\u0434</div><div class="ss">\u0422\u043E\u0442 \u0436\u0435 \u043E\u0431\u044A\u0451\u043C \u0437\u0430\u0434\u0430\u0447, \u043C\u0435\u043D\u044C\u0448\u0435 \u043B\u044E\u0434\u0435\u0439, \u0432\u044B\u0448\u0435 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C</div></div>';
 
-  // Bar chart
-  let barHtml = '<div class="bar-chart">';
-  (data.roles || []).forEach(r => {
-    const lineCost = r.total_cost * r.count;
-    const pct = totalCost > 0 ? (lineCost / totalCost * 100) : 0;
-    barHtml += `<div class="bar-item">
-      <div class="bar-label">${esc(r.role)} ×${r.count}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%">${pct.toFixed(1)}%</div></div>
-    </div>`;
-  });
-  barHtml += '</div>';
-  s3.innerHTML += barHtml;
-  content.appendChild(s3);
+  // KPIs
+  const dp=(T.team_size||0)-(A.team_size||0);
+  const dm=(T.monthly_cost||0)-(A.monthly_cost||0);
+  s2.innerHTML+='<div class="kgrid">'+
+    '<div class="kc"><div class="kt">\u0420\u0430\u0437\u043C\u0435\u0440 \u043A\u043E\u043C\u0430\u043D\u0434\u044B</div><div class="kr"><div><div class="kv b">'+T.team_size+'</div><div class="kvl">\u0442\u0440\u0430\u0434.</div></div><div class="ka">\u2192</div><div><div class="kv p">'+A.team_size+'</div><div class="kvl">AI</div></div></div><div class="kd">\u2212'+dp+' \u0447\u0435\u043B.</div></div>'+
+    '<div class="kc"><div class="kt">\u0412 \u043C\u0435\u0441\u044F\u0446</div><div class="kr"><div><div class="kv b" style="font-size:20px">'+FM(T.monthly_cost||0)+'</div><div class="kvl">\u0442\u0440\u0430\u0434.</div></div><div class="ka">\u2192</div><div><div class="kv p" style="font-size:20px">'+FM(A.monthly_cost||0)+'</div><div class="kvl">AI</div></div></div><div class="kd">\u2212'+FM(dm)+'/\u043C\u0435\u0441</div></div>'+
+    '<div class="kc"><div class="kt">\u0412 \u0433\u043E\u0434 (\u0441 \u043D\u0430\u043A\u043B.)</div><div class="kr"><div><div class="kv b" style="font-size:20px">'+FM(T.annual_cost_with_overhead||0)+'</div><div class="kvl">\u0442\u0440\u0430\u0434.</div></div><div class="ka">\u2192</div><div><div class="kv p" style="font-size:20px">'+FM(A.annual_cost_with_overhead||0)+'</div><div class="kvl">AI</div></div></div><div class="kd">\u2212'+FM(Math.abs(sav))+'/\u0433\u043E\u0434</div></div>'+
+  '</div>';
+  w.appendChild(s2);
 
-  // 4. Metrics
-  const s4 = section('🎯', 'Метрики эффективности');
-  let metricsHtml = '<div class="metrics-grid">';
-  (data.metrics || []).forEach(m => {
-    metricsHtml += `<div class="metric-card">
-      <div class="metric-name">${esc(m.name)}</div>
-      <div class="metric-desc">${esc(m.description)}</div>
-      <div class="gauge-wrap">
-        <div class="gauge-bg"></div>
-        <div class="gauge-fill"></div>
-      </div>
-      <div class="metric-values">
-        <span class="metric-threshold">Порог: ${esc(m.threshold)}</span>
-        <span class="metric-target">Цель: ${esc(m.target)}</span>
-      </div>
-      <div class="metric-measure">${esc(m.measurement)}</div>
-    </div>`;
-  });
-  metricsHtml += '</div>';
-  s4.innerHTML += metricsHtml;
-  content.appendChild(s4);
+  // AI tools
+  if(A.ai_tools){const sa=sec('\uD83E\uDD16','AI-\u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u043A\u043E\u043C\u0430\u043D\u0434\u044B');sa.innerHTML+='<div class="dcard" style="border-left-color:var(--purple)">'+E(A.ai_tools)+'</div>';w.appendChild(sa)}
 
-  // 5. Risks
-  const s5 = section('⚠️', 'Реестр рисков');
-  let risksHtml = '<div class="risks-grid">';
-  (data.risks || []).forEach((r, i) => {
-    risksHtml += `<div class="risk-card">
-      <div class="risk-title">${i+1}. ${esc(r.risk)}</div>
-      <div class="risk-badges">
-        <span class="badge ${badgeClass(r.probability)}">Вероятность: ${esc(r.probability)}</span>
-        <span class="badge ${badgeClass(r.impact)}">Влияние: ${esc(r.impact)}</span>
-      </div>
-      <div class="risk-mitigation">${esc(r.mitigation)}</div>
-    </div>`;
-  });
-  risksHtml += '</div>';
-  s5.innerHTML += risksHtml;
+  // Tables
+  const s3=sec('\uD83D\uDC65','\u0421\u043E\u0441\u0442\u0430\u0432 \u043A\u043E\u043C\u0430\u043D\u0434');
+  s3.innerHTML+='<div class="tcomp"><div class="tpan pb"><div class="tph">\uD83D\uDD35 \u0422\u0440\u0430\u0434\u0438\u0446\u0438\u043E\u043D\u043D\u0430\u044F</div><div class="tw">'+mkT(T.roles,'blue')+'</div></div><div class="tpan pp"><div class="tph">\uD83D\uDFE3 AI-Powered</div><div class="tw">'+mkT(A.roles,'purple')+'</div></div></div>';
+  s3.innerHTML+='<div class="bcomp"><div><div class="btit b">\u0422\u0440\u0430\u0434\u0438\u0446\u0438\u043E\u043D\u043D\u0430\u044F</div>'+mkB(T.roles,'b')+'</div><div><div class="btit p">AI-Powered</div>'+mkB(A.roles,'p')+'</div></div>';
+  w.appendChild(s3);
 
-  // Risk matrix
-  const matrixColors = [
-    ['rm-yellow','rm-red','rm-red'],
-    ['rm-green','rm-yellow','rm-red'],
-    ['rm-green','rm-green','rm-yellow']
-  ];
-  const probMap = {'Высокая':0,'Средняя':1,'Низкая':2};
-  const impMap = {'Низкий':0,'Средний':1,'Высокий':2};
+  // Metrics
+  const s4=sec('\uD83C\uDFAF','\u041C\u0435\u0442\u0440\u0438\u043A\u0438 \u044D\u0444\u0444\u0435\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u0438');
+  let mh='<div class="mgrid">';
+  (D.metrics||[]).forEach(m=>{mh+='<div class="mc"><div class="mn">'+E(m.name)+'</div><div class="md">'+E(m.description)+'</div><div class="gw"><div class="gb"></div><div class="gf"></div></div><div class="mvs"><span class="mth">\u041F\u043E\u0440\u043E\u0433: '+E(m.threshold)+'</span><span class="mta">\u0426\u0435\u043B\u044C: '+E(m.target)+'</span></div><div class="mme">'+E(m.measurement)+'</div></div>'});
+  mh+='</div>';s4.innerHTML+=mh;w.appendChild(s4);
 
-  let cells = Array.from({length:3}, () => Array.from({length:3}, () => []));
-  (data.risks || []).forEach((r, i) => {
-    const py = probMap[r.probability] ?? 1;
-    const ix = impMap[r.impact] ?? 1;
-    cells[py][ix].push(i + 1);
-  });
+  // Risks
+  const s5=sec('\u26A0\uFE0F','\u0420\u0435\u0435\u0441\u0442\u0440 \u0440\u0438\u0441\u043A\u043E\u0432');
+  let rh='<div class="rgrid">';
+  (D.risks||[]).forEach((r,i)=>{rh+='<div class="rc"><div class="rn">'+(i+1)+'. '+E(r.risk)+'</div><div class="rbs"><span class="bdg '+BC(r.probability)+'">\u0412\u0435\u0440: '+E(r.probability)+'</span><span class="bdg '+BC(r.impact)+'">\u0412\u043B: '+E(r.impact)+'</span></div><div class="rm">'+E(r.mitigation)+'</div></div>'});
+  rh+='</div>';s5.innerHTML+=rh;
 
-  let matrixHtml = '<div class="risk-matrix-wrap"><div class="risk-matrix">';
-  // Row 0: header spacer + impact labels
-  matrixHtml += '<div></div>';
-  ['Низкое','Среднее','Высокое'].forEach(l => { matrixHtml += `<div class="rm-label">${l}</div>`; });
-  // Rows 1-3
-  ['Высокая','Средняя','Низкая'].forEach((label, row) => {
-    matrixHtml += `<div class="rm-label rm-label-y">${label}</div>`;
-    for (let col = 0; col < 3; col++) {
-      const dots = cells[row][col].map(n => `<span class="rm-dot" style="background:rgba(255,255,255,0.2)">${n}</span>`).join('');
-      matrixHtml += `<div class="rm-cell ${matrixColors[row][col]}">${dots}</div>`;
-    }
-  });
-  // Bottom labels
-  matrixHtml += '<div></div><div class="rm-label" style="grid-column:span 3;font-size:11px">Влияние →</div>';
-  matrixHtml += '</div></div>';
-  s5.innerHTML += matrixHtml;
-  content.appendChild(s5);
+  // Matrix
+  const mcs=[['rmcy','rmcr','rmcr'],['rmcg','rmcy','rmcr'],['rmcg','rmcg','rmcy']];
+  const pm={'\u0412\u044B\u0441\u043E\u043A\u0430\u044F':0,'\u0421\u0440\u0435\u0434\u043D\u044F\u044F':1,'\u041D\u0438\u0437\u043A\u0430\u044F':2};
+  const im={'\u041D\u0438\u0437\u043A\u0438\u0439':0,'\u0421\u0440\u0435\u0434\u043D\u0438\u0439':1,'\u0412\u044B\u0441\u043E\u043A\u0438\u0439':2};
+  let cl=Array.from({length:3},()=>Array.from({length:3},()=>[]));
+  (D.risks||[]).forEach((r,i)=>{cl[pm[r.probability]??1][im[r.impact]??1].push(i+1)});
+  let mx='<div class="rmw"><div class="rmx"><div></div>';
+  ['\u041D\u0438\u0437\u043A\u043E\u0435','\u0421\u0440\u0435\u0434\u043D\u0435\u0435','\u0412\u044B\u0441\u043E\u043A\u043E\u0435'].forEach(l=>{mx+='<div class="rml">'+l+'</div>'});
+  ['\u0412\u044B\u0441\u043E\u043A\u0430\u044F','\u0421\u0440\u0435\u0434\u043D\u044F\u044F','\u041D\u0438\u0437\u043A\u0430\u044F'].forEach((lb,row)=>{mx+='<div class="rml rmly">'+lb+'</div>';for(let c=0;c<3;c++){const dots=cl[row][c].map(n=>'<span class="rmd">'+n+'</span>').join('');mx+='<div class="rmc '+mcs[row][c]+'">'+dots+'</div>'}});
+  mx+='<div></div><div class="rml" style="grid-column:span 3;font-size:11px">\u0412\u043B\u0438\u044F\u043D\u0438\u0435 \u2192</div></div></div>';
+  s5.innerHTML+=mx;w.appendChild(s5);
 
-  // Animate sections
-  setTimeout(() => {
-    document.querySelectorAll('.dash-section').forEach((s, i) => {
-      setTimeout(() => s.classList.add('visible'), i * 200);
-    });
-  }, 100);
+  // Animate
+  setTimeout(()=>{document.querySelectorAll('.ds').forEach((s,i)=>{setTimeout(()=>s.classList.add('vis'),i*200)})},100);
 }
 
-// --- HELPERS ---
-function el(tag, cls) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  return e;
-}
-function section(icon, title) {
-  const s = document.createElement('div');
-  s.className = 'dash-section';
-  s.innerHTML = `<h2><span class="icon">${icon}</span>${title}</h2>`;
-  return s;
-}
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function badgeClass(level) {
-  const l = (level||'').toLowerCase();
-  if (l.includes('высок')) return 'badge-high';
-  if (l.includes('средн')) return 'badge-medium';
-  return 'badge-low';
+function sec(ic,tt){const s=document.createElement('div');s.className='ds';s.innerHTML='<h2><span>'+ic+'</span> '+tt+'</h2>';return s}
+
+function mkT(roles,color){
+  let tot=0,rows='';
+  (roles||[]).forEach((r,i)=>{const lc=r.total_cost*r.count;tot+=lc;rows+='<tr><td>'+(i+1)+'</td><td>'+E(r.role)+'</td><td>'+E(r.seniority)+'</td><td style="text-align:center">'+r.count+'</td><td style="font-family:var(--m)">'+F(r.salary_net)+' \u20BD</td><td style="font-family:var(--m)">'+F(lc)+' \u20BD</td></tr>'});
+  rows+='<tr class="rtot"><td colspan="5" style="text-align:right">ИТОГО:</td><td style="font-family:var(--m);color:var(--'+color+')">'+F(tot)+' \u20BD/мес</td></tr>';
+  return '<table><thead><tr><th>№</th><th>Роль</th><th>Грейд</th><th>Кол</th><th>На руки</th><th>Стоимость</th></tr></thead><tbody>'+rows+'</tbody></table>'
 }
 
-// --- EXPORT PDF ---
-async function exportPDF() {
-  const btn = event.target;
-  btn.textContent = '⏳ Генерация...';
-  btn.disabled = true;
-  const el = document.getElementById('dashContent');
-  const opt = {
-    margin: 10,
-    filename: `MOEX_Team_${new Date().toISOString().slice(0,10)}.pdf`,
-    image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, backgroundColor: '#0a0a0f' },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-  try {
-    await html2pdf().set(opt).from(el).save();
-  } catch(e) { showToast('Ошибка генерации PDF'); }
-  btn.textContent = '📄 Экспорт PDF';
-  btn.disabled = false;
+function mkB(roles,c){
+  let tot=0;(roles||[]).forEach(r=>{tot+=r.total_cost*r.count});let h='';
+  (roles||[]).forEach(r=>{const lc=r.total_cost*r.count;const p=tot>0?(lc/tot*100):0;h+='<div class="bi"><div class="bl">'+E(r.role)+' \u00D7'+r.count+'</div><div class="btr"><div class="bf '+c+'" style="width:'+p+'%">'+p.toFixed(0)+'%</div></div></div>'});
+  return h
 }
 
-// --- COPY JSON ---
-function copyJSON() {
-  if (!lastResult) { showToast('Нет данных'); return; }
-  navigator.clipboard.writeText(JSON.stringify(lastResult, null, 2))
-    .then(() => showToast('JSON скопирован в буфер'))
-    .catch(() => showToast('Не удалось скопировать'));
-}
+async function pdf(){const b=event.target;b.textContent='\u23F3...';b.disabled=true;try{await html2pdf().set({margin:8,filename:'MOEX_Team_'+new Date().toISOString().slice(0,10)+'.pdf',image:{type:'jpeg',quality:.95},html2canvas:{scale:2,backgroundColor:'#0a0a0f'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(document.getElementById('dc')).save()}catch(e){toast('Ошибка PDF')}b.textContent='\uD83D\uDCC4 PDF';b.disabled=false}
+function cj(){if(!LR){toast('Нет данных');return}navigator.clipboard.writeText(JSON.stringify(LR,null,2)).then(()=>toast('JSON скопирован')).catch(()=>toast('Ошибка'))}
 </script>
 </body>
 </html>
