@@ -140,8 +140,19 @@ tbody tr:nth-child(odd){background:var(--card2)}
 .foot{text-align:center;padding:30px;font-size:12px;color:var(--dim);border-top:1px solid rgba(255,255,255,.04);margin-top:40px}
 @keyframes fi{from{opacity:0}to{opacity:1}}
 
-@media(max-width:900px){.kgrid{grid-template-columns:1fr}.tcomp,.bcomp{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr}.rgrid{grid-template-columns:1fr}.chead{flex-direction:column}}
-@media(max-width:600px){.hdr h1{font-size:22px}.kv{font-size:22px}.bl{width:100px;min-width:100px}.dtool{justify-content:center}.sban .sv{font-size:32px}}
+/* QUARTERLY PLAN */
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.qcard{background:var(--card);border-radius:var(--r);padding:20px;border:1px solid rgba(255,255,255,.06)}
+.qperiod{font-family:var(--m);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.qfocus{font-size:15px;font-weight:700;margin-bottom:12px;line-height:1.4}
+.qtasks{list-style:none;padding:0;margin:0}
+.qtasks li{font-size:13px;color:var(--dim);padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);line-height:1.4}
+.qtasks li::before{content:'→ ';color:var(--accent);font-weight:700}
+.qresult{margin-top:12px;font-size:12px;font-weight:600;color:var(--accent);background:rgba(0,212,170,.06);padding:8px 12px;border-radius:6px;line-height:1.4}
+.qnote{background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.2);border-radius:var(--r);padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--yellow);line-height:1.6}
+
+@media(max-width:900px){.kgrid{grid-template-columns:1fr 1fr}.tcomp,.bcomp,.qgrid{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr}.rgrid{grid-template-columns:1fr}.chead{flex-direction:column}}
+@media(max-width:600px){.hdr{padding:24px 16px 16px}.hdr h1{font-size:20px}.hdr p{font-size:13px}.wrap{padding:0 12px}.kgrid{grid-template-columns:1fr}.kv{font-size:18px}.kv.b,.kv.p{font-size:18px}.bl{width:90px;min-width:90px}.dtool{justify-content:center}.sban{padding:20px}.sban .sv{font-size:28px}.dcard{padding:16px 18px}.kc{padding:14px}.mc{padding:16px}.tcomp,.bcomp,.qgrid{grid-template-columns:1fr}.rmx{grid-template-columns:30px repeat(3,60px)}.bt{padding:8px 12px;font-size:12px}}
 </style>
 </head>
 <body>
@@ -246,7 +257,7 @@ let si=0,sint=null;
 function startS(){si=0;const e=document.getElementById('stxt'),f=document.getElementById('pfill');e.textContent=STS[0];f.style.width='0%';sint=setInterval(()=>{si++;if(si<STS.length){e.style.opacity=0;setTimeout(()=>{e.textContent=STS[si];e.style.opacity=1},200);f.style.width=((si+1)/STS.length*100)+'%'}else clearInterval(sint)},2500)}
 function stopS(){clearInterval(sint);document.getElementById('pfill').style.width='100%'}
 
-function go(){
+async function go(){
   let ok=true;
   [['inp1','e1'],['inp2','e2']].forEach(([i,e])=>{const el=document.getElementById(i),er=document.getElementById(e);if(!el.value.trim()){er.style.display='block';ok=false}else er.style.display='none'});
   if(!ok)return;
@@ -255,22 +266,31 @@ function go(){
   const fb=document.getElementById('formBox');fb.classList.add('hide');
   setTimeout(()=>fb.style.display='none',400);
   setTimeout(()=>{document.getElementById('loadBox').style.display='block';startS()},400);
-  Promise.allSettled([callGroq(t,v,k),callGemini(t,v,gk),callHF(t,v,hk)]).then(([gr,gm,hf])=>{
-    stopS();
-    const labels=['\u0047\u0072\u006F\u0071 Llama','\u0047\u0065\u006D\u0069\u006E\u0069 2.0','\u0048\u0046 Qwen'];
-    const results=[gr,gm,hf].map((r,i)=>{if(r.status==='fulfilled')return r.value;console.warn(labels[i]+' failed:',r.reason?.message);return null});
-    const failed=labels.filter((_,i)=>results[i]===null);
-    if(failed.length)console.info('\u041D\u0435 \u043E\u0442\u0432\u0435\u0442\u0438\u043B\u0438: '+failed.join(', '));
-    try{
-      const data=mergeResults(results,labels);LR=data;
-      setTimeout(()=>{document.getElementById('loadBox').style.display='none';render(data);document.getElementById('dash').style.display='block'},600);
-    }catch(e){
-      document.getElementById('loadBox').style.display='none';
-      const failInfo=failed.length?' (\u043D\u0435 \u043E\u0442\u0432\u0435\u0442\u0438\u043B\u0438: '+failed.join(', ')+')':'';
-      document.getElementById('etxt').innerHTML=e.message+failInfo+'<br><br><small style="opacity:.6">\u041F\u043E\u0434\u0440\u043E\u0431\u043D\u043E\u0441\u0442\u0438 \u0432 \u043A\u043E\u043D\u0441\u043E\u043B\u0438 (F12)</small>';
-      document.getElementById('errBox').style.display='block';
-    }
-  });
+
+  const [gr,gm,hf]=await Promise.allSettled([callGroq(t,v,k),callGemini(t,v,gk),callHF(t,v,hk)]);
+  stopS();
+  const labels=['\u0047\u0072\u006F\u0071 Llama','\u0047\u0065\u006D\u0069\u006E\u0069 2.0','\u0048\u0046 Qwen'];
+  const results=[gr,gm,hf].map((r,i)=>{if(r.status==='fulfilled')return r.value;console.warn(labels[i]+' failed:',r.reason?.message);return null});
+  const failed=labels.filter((_,i)=>results[i]===null);
+  let data;
+  try{data=mergeResults(results,labels);LR=data;}
+  catch(e){
+    document.getElementById('loadBox').style.display='none';
+    const fi=failed.length?' (\u043D\u0435 \u043E\u0442\u0432\u0435\u0442\u0438\u043B\u0438: '+failed.join(', ')+')':'';
+    document.getElementById('etxt').innerHTML=e.message+fi+'<br><br><small style="opacity:.6">\u041F\u043E\u0434\u0440\u043E\u0431\u043D\u043E\u0441\u0442\u0438 \u0432 \u043A\u043E\u043D\u0441\u043E\u043B\u0438 (F12)</small>';
+    document.getElementById('errBox').style.display='block';return;
+  }
+  document.getElementById('loadBox').style.display='none';
+  render(data);
+  document.getElementById('dash').style.display='block';
+
+  // Phase 2: quarterly plan
+  const pl=renderPlanLoading();
+  try{
+    const plan=await generateQuarterlyPlan(t,v,data,k,gk,hk);
+    pl.remove();
+    if(plan){renderPlan(plan,document.getElementById('dc'));LR._plan=plan;setTimeout(()=>{document.querySelectorAll('.ds:not(.vis)').forEach(s=>s.classList.add('vis'))},100);}
+  }catch(e){pl.remove();console.warn('Plan failed:',e.message);}
 }
 
 function reset(){
@@ -317,6 +337,60 @@ async function callHF(task,val,key){
   try{return JSON.parse(c.replace(/```json|```/g,'').trim())}catch(e){throw new Error('HuggingFace: \u043D\u0435\u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 JSON')}
 }
 
+const PLAN_SYS=`\u0422\u044B \u2014 CTO \u041C\u043E\u0441\u043A\u043E\u0432\u0441\u043A\u043E\u0439 \u0431\u0438\u0440\u0436\u0438. \u0421\u043E\u0441\u0442\u0430\u0432\u044C \u043F\u043E\u043A\u0432\u0430\u0440\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043B\u0430\u043D \u0440\u0430\u0431\u043E\u0442 \u043A\u043E\u043C\u0430\u043D\u0434\u044B \u043D\u0430 12 \u043C\u0435\u0441\u044F\u0446\u0435\u0432. \u041E\u0442\u0432\u0435\u0442\u044C \u0421\u0422\u0420\u041E\u0413\u041E JSON \u0431\u0435\u0437 markdown:
+{"q1":{"period":"0\u20133 \u043C\u0435\u0441","focus":"\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u0444\u0430\u0437\u044B","tasks":["\u0437\u0430\u0434\u0430\u0447\u0430 1","\u0437\u0430\u0434\u0430\u0447\u0430 2","\u0437\u0430\u0434\u0430\u0447\u0430 3"],"result":"\u041A\u043E\u043D\u043A\u0440\u0435\u0442\u043D\u044B\u0439 \u0438\u0442\u043E\u0433 \u0444\u0430\u0437\u044B"},"q2":{...},"q3":{...},"q4":{...}}
+3\u20135 \u0437\u0430\u0434\u0430\u0447 \u043D\u0430 \u043A\u0432\u0430\u0440\u0442\u0430\u043B. \u041A\u043E\u043D\u043A\u0440\u0435\u0442\u043D\u043E, \u0431\u0435\u0437 \u0432\u043E\u0434\u044B. \u0417\u0430\u0434\u0430\u0447\u0438 \u043D\u0430 \u0440\u0443\u0441\u0441\u043A\u043E\u043C.`;
+
+async function callGroqPlan(ctx,key){
+  let r;try{r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:2048,temperature:0.3,response_format:{type:'json_object'},messages:[{role:'system',content:PLAN_SYS},{role:'user',content:ctx}]})})}catch(e){throw new Error('Groq plan: no conn')}
+  if(!r.ok)throw new Error('Groq plan: '+r.status);
+  const j=await r.json(),c=j.choices?.[0]?.message?.content;if(!c)throw new Error('Groq plan: empty');
+  return JSON.parse(c);}
+
+async function callGeminiPlan(ctx,key){
+  let r;try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:PLAN_SYS}]},contents:[{role:'user',parts:[{text:ctx}]}],generationConfig:{responseMimeType:'application/json',temperature:0.3,maxOutputTokens:2048}})})}catch(e){throw new Error('Gemini plan: no conn')}
+  if(!r.ok)throw new Error('Gemini plan: '+r.status);
+  const j=await r.json(),c=j.candidates?.[0]?.content?.parts?.[0]?.text;if(!c)throw new Error('Gemini plan: empty');
+  try{return JSON.parse(c)}catch(e){throw new Error('Gemini plan: bad JSON')}}
+
+async function callHFPlan(ctx,key){
+  let r;try{r=await fetch('https://router.huggingface.co/hf-inference/models/Qwen/Qwen2.5-72B-Instruct/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'Qwen/Qwen2.5-72B-Instruct',max_tokens:2048,temperature:0.3,messages:[{role:'system',content:PLAN_SYS},{role:'user',content:ctx+'\n\n\u041E\u0442\u0432\u0435\u0442 \u0441\u0442\u0440\u043E\u0433\u043E JSON.'}]})})}catch(e){throw new Error('HF plan: no conn')}
+  if(!r.ok)throw new Error('HF plan: '+r.status);
+  const j=await r.json(),c=j.choices?.[0]?.message?.content;if(!c)throw new Error('HF plan: empty');
+  try{return JSON.parse(c.replace(/```json|```/g,'').trim())}catch(e){throw new Error('HF plan: bad JSON')}}
+
+async function callHFSynthesize(plans,key){
+  const content=plans.map((p,i)=>'\u0412\u0410\u0420\u0418\u0410\u041D\u0422 '+(i+1)+':\n'+JSON.stringify(p)).join('\n\n');
+  const msg='\u041E\u0431\u044A\u0435\u0434\u0438\u043D\u0438 \u043B\u0443\u0447\u0448\u0435\u0435 \u0438\u0437 \u044D\u0442\u0438\u0445 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u043E\u0432 \u043F\u043B\u0430\u043D\u0430 \u0432 \u043E\u0434\u0438\u043D:\n\n'+content+'\n\n\u041E\u0442\u0432\u0435\u0442 \u0441\u0442\u0440\u043E\u0433\u043E JSON.';
+  let r;try{r=await fetch('https://router.huggingface.co/hf-inference/models/Qwen/Qwen2.5-72B-Instruct/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'Qwen/Qwen2.5-72B-Instruct',max_tokens:2048,temperature:0.2,messages:[{role:'system',content:PLAN_SYS},{role:'user',content:msg}]})})}catch(e){throw new Error('HF synth: no conn')}
+  if(!r.ok)throw new Error('HF synth: '+r.status);
+  const j=await r.json(),c=j.choices?.[0]?.message?.content;if(!c)throw new Error('HF synth: empty');
+  try{return JSON.parse(c.replace(/```json|```/g,'').trim())}catch(e){throw new Error('HF synth: bad JSON')}}
+
+async function generateQuarterlyPlan(task,val,teamData,groqKey,geminiKey,hfKey){
+  const roles=(teamData.traditional.roles||[]).map(r=>r.role+' \u00D7'+r.count).join(', ');
+  const ctx='\u0417\u0430\u0434\u0430\u0447\u0430 \u043D\u0430 12 \u043C\u0435\u0441\u044F\u0446\u0435\u0432:\n'+task+'\n\n\u0411\u0438\u0437\u043D\u0435\u0441-\u0446\u0435\u043D\u043D\u043E\u0441\u0442\u044C:\n'+val+'\n\n\u0421\u043E\u0441\u0442\u0430\u0432: '+teamData.traditional.team_size+' \u0447\u0435\u043B. (\u0442\u0440\u0430\u0434.), '+teamData.ai_powered.team_size+' \u0447\u0435\u043B. (AI). \u0420\u043E\u043B\u0438: '+roles;
+  const [p1,p2,p3]=await Promise.allSettled([callGroqPlan(ctx,groqKey),callGeminiPlan(ctx,geminiKey),callHFPlan(ctx,hfKey)]);
+  const plans=[p1,p2,p3].map(r=>r.status==='fulfilled'?r.value:null);
+  if(plans[2]!==null){const valid=plans.filter(Boolean);if(valid.length>1){try{return await callHFSynthesize(valid,hfKey)}catch(e){return plans[2]}}return plans[2];}
+  return plans.find(p=>p!==null)||null;}
+
+function renderPlanLoading(){
+  const pl=document.createElement('div');pl.className='ds vis';
+  pl.innerHTML='<h2><span>\uD83D\uDCC5</span> \u041F\u043E\u043A\u0432\u0430\u0440\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043B\u0430\u043D</h2><div style="text-align:center;padding:40px;color:var(--dim)"><div class="spin" style="width:32px;height:32px;border-width:2px;margin:0 auto 16px"></div>\u041F\u0440\u043E\u0440\u0430\u0431\u0430\u0442\u044B\u0432\u0430\u044E \u043F\u043E\u043A\u0432\u0430\u0440\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043B\u0430\u043D \u0440\u0430\u0431\u043E\u0442 \u043A\u043E\u043C\u0430\u043D\u0434\u044B...</div>';
+  document.getElementById('dc').appendChild(pl);return pl;}
+
+function renderPlan(plan,container){
+  const s=sec('\uD83D\uDCC5','\u041F\u043E\u043A\u0432\u0430\u0440\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043B\u0430\u043D');
+  const qc=['--accent','--blue','--purple','--yellow'];
+  let cards='';
+  ['q1','q2','q3','q4'].forEach((q,i)=>{
+    const qd=plan[q]||{};
+    const tasks=(qd.tasks||[]).map(t=>'<li>'+E(t)+'</li>').join('');
+    cards+='<div class="qcard" style="border-top:3px solid var('+qc[i]+')">'+'<div class="qperiod" style="color:var('+qc[i]+')">'+(qd.period||q)+'</div>'+'<div class="qfocus">'+E(qd.focus||'')+'</div>'+'<ul class="qtasks">'+tasks+'</ul>'+(qd.result?'<div class="qresult">\u2713 '+E(qd.result)+'</div>':'')+'</div>';});
+  s.innerHTML+='<div class="qnote">\u23F1 \u0415\u0441\u043B\u0438 \u043A\u043E\u043C\u0430\u043D\u0434\u044B \u0435\u0449\u0451 \u043D\u0435\u0442 \u2014 \u043F\u043E\u0442\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F <strong>3\u20134 \u043C\u0435\u0441\u044F\u0446\u0430</strong> \u043D\u0430 \u043D\u0430\u0439\u043C \u0438 \u043F\u043E\u0433\u0440\u0443\u0436\u0435\u043D\u0438\u0435 \u0432 \u0431\u0438\u0437\u043D\u0435\u0441-\u043F\u0440\u043E\u0446\u0435\u0441\u0441\u044B. \u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0443\u0435\u043C \u0443\u0447\u0435\u0441\u0442\u044C \u043F\u0440\u0438 \u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0438.</div><div class="qgrid">'+cards+'</div>';
+  container.appendChild(s);}
+
 function mergeResults(results,labels){
   const valid=[];
   results.forEach((r,i)=>{if(r!==null)valid.push({data:r,label:labels[i]})});
@@ -352,7 +426,7 @@ function render(D){
   const d=document.getElementById('dash');d.innerHTML='';
   // toolbar
   const tb=document.createElement('div');tb.className='dtool';
-  tb.innerHTML='<button class="bt ac" onclick="reset()">\u21BB Новый расчёт</button><button class="bt" onclick="pdf()">\uD83D\uDCC4 PDF</button><button class="bt" onclick="cj()">\uD83D\uDCCB JSON</button>';
+  tb.innerHTML='<button class="bt ac" onclick="reset()">\u21BB \u041D\u043E\u0432\u044B\u0439 \u0440\u0430\u0441\u0447\u0451\u0442</button><button class="bt" onclick="pdf()">\uD83D\uDCC4 PDF</button>';
   d.appendChild(tb);
   const w=document.createElement('div');w.id='dc';d.appendChild(w);
 
@@ -436,8 +510,7 @@ function mkB(roles,c){
   return h
 }
 
-async function pdf(){const b=event.target;b.textContent='\u23F3...';b.disabled=true;try{await html2pdf().set({margin:8,filename:'MOEX_Team_'+new Date().toISOString().slice(0,10)+'.pdf',image:{type:'jpeg',quality:.95},html2canvas:{scale:2,backgroundColor:'#0a0a0f'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(document.getElementById('dc')).save()}catch(e){toast('Ошибка PDF')}b.textContent='\uD83D\uDCC4 PDF';b.disabled=false}
-function cj(){if(!LR){toast('Нет данных');return}navigator.clipboard.writeText(JSON.stringify(LR,null,2)).then(()=>toast('JSON скопирован')).catch(()=>toast('Ошибка'))}
+async function pdf(){const b=event.target;b.textContent='\u23F3...';b.disabled=true;try{await html2pdf().set({margin:[12,10,12,10],filename:'MOEX_Team_'+new Date().toISOString().slice(0,10)+'.pdf',image:{type:'jpeg',quality:.92},html2canvas:{scale:1.5,backgroundColor:'#0a0a0f',useCORS:true,scrollY:0},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:'avoid-all'}}).from(document.getElementById('dc')).save()}catch(e){toast('\u041E\u0448\u0438\u0431\u043A\u0430 PDF')}b.textContent='\uD83D\uDCC4 PDF';b.disabled=false}
 </script>
 </body>
 </html>
